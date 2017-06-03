@@ -8,26 +8,20 @@ import numpy
 import os
 from PIL import Image
 
-# 种类
-NUM_CLASSES = 10
-
-# The images are always 28x28 pixels.
-IMAGE_SIZE = 128
-IMAGE_PIXELS = IMAGE_SIZE * IMAGE_SIZE
-
+# --------------------------------------------------------------
+TRAIN_IMAGES = ["./dataset/dataset_1/" + i for i in os.listdir('./dataset/dataset_1')] \
+               + ["./dataset/dataset_2/" + i for i in os.listdir('./dataset/dataset_2/')]
 TRAIN_LABELS = './dataset/train_labels.txt'
 TEST_IMAGES = './dataset/dataset_test/'
 TEST_LABELS = './dataset/test_labels.txt'
-#
-# TRAIN_IMAGES=["./dataset/dataset_2/"+i for i in os.listdir('./dataset/dataset_2')] +["./dataset/dataset_3/"+i for i in os.listdir('./dataset/dataset_3/')]
+# --------------------------------------------------------------
 
-TRAIN_IMAGES1 = ["./dataset/dataset_1/" + i for i in os.listdir('./dataset/dataset_1')]
-TRAIN_IMAGES2 = ["./dataset/dataset_2/" + i for i in os.listdir('./dataset/dataset_2')]
 
-# filename_queue1 = tf.train.string_input_producer(TRAIN_IMAGES1, shuffle=True)
-# filename_queue2 = tf.train.string_input_producer(TRAIN_IMAGES2, shuffle=True)
+IMAGE_SIZE = 128
+IMAGE_PIXELS = IMAGE_SIZE * IMAGE_SIZE
+
 writer = tf.python_io.TFRecordWriter("train.tfrecords")
-for file in TRAIN_IMAGES1:
+for file in TRAIN_IMAGES:
     img = Image.open(file)
     img_raw = img.tobytes()
     example = tf.train.Example(features=tf.train.Features(
