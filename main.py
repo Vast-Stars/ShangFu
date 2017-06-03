@@ -26,9 +26,12 @@ if __name__ == '__main__':
         coord = tf.train.Coordinator()
         threads = tf.train.start_queue_runners(sess=sess, coord=coord)
         try:
+            step=0
             while not coord.should_stop():
                 # Run training steps or whatever
-                sess.run(train())
+                loss_value=sess.run(train())
+                step+=1
+
         except tf.errors.OutOfRangeError:
             print('Done training -- epoch limit reached')
         finally:
