@@ -1,10 +1,11 @@
 import tensorflow as tf
-# from tensorflow.examples.tutorials.mnist import input_data
+
 import tf_inference
 import os
 import numpy as np
-
+import read_TFrecord
 # 定义神经网络相关的参数
+
 
 BATCH_SIZE = 100
 LEARNING_RATE_BASE = 0.01
@@ -14,12 +15,12 @@ TRAINING_STEPS = 10000
 MOVING_AVERAGE_DECAY = 0.99
 
 # 模型保存的路径和文件名
-MODEL_SAVE_PATH = "/model"
-MODEL_NAME = "model.ckpt"
+MODEL_SAVE_PATH = "/model/model.ckpt"
+#MODEL_NAME = "model.ckpt"
 
 
 # 定义训练过程
-def train(mnist,sess):
+def train(images, labels, sess):
     # 定义输出为4维矩阵的placeholder
     x = tf.placeholder(tf.float32, [
             BATCH_SIZE,
@@ -66,14 +67,10 @@ def train(mnist,sess):
     saver = tf.train.Saver()
     tf.global_variables_initializer().run()
     for i in range(TRAINING_STEPS):
-        xs, ys = mnist.train.next_batch(BATCH_SIZE)
+        xs, ys = tf.train.shuffle_batch([images, labels], 1000, 4000, 1000)
 
-        reshaped_xs = np.reshape(xs, (
-            BATCH_SIZE,
-            tf_inference.IMAGE_SIZE,
-            tf_inference.IMAGE_SIZE,
-            tf_inference.NUM_CHANNELS))
-        _, loss_value, step = sess.run([train_op, loss, global_step], feed_dict={x: reshaped_xs, y_: ys})
+        _, loss_value, step = sess.run([train_op, loss, global_step], feed_dict={x: xs, y_: ys})
+        saver.save(sess, MODEL_SAVE_PATH)
 
         if i % 1000 == 0:
             print("After %d training step(s), loss on training batch is %g." % (step, loss_value))
