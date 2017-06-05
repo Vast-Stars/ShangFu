@@ -1,0 +1,54 @@
+NUM_CLASSES = 2
+BATCH_SIZE = 5000
+
+#样本信息
+IMAGE_SIZE = 128
+IMAGE_PIXELS = IMAGE_SIZE * IMAGE_SIZE
+NUM_CHANNELS=3
+
+TRAIN_EPOCHS=10000
+SAVE_STEP=1000
+SHOW_STEP=100
+
+LEARNING_RATE_BASE = 0.01
+LEARNING_RATE_DECAY = 0.99
+
+REGULARIZATION_RATE = 0.0001
+TRAINING_STEPS = 10000
+MOVING_AVERAGE_DECAY = 0.99
+
+
+# 定义神经网络参数
+INPUT_NODE = 16384
+OUTPUT_NODE = NUM_CLASSES
+
+IMAGE_SIZE = 128
+NUM_CHANNELS = 3
+NUM_LABELS = 2
+
+# 第一层卷积层的深度和尺寸
+CONV1_DEEP = 8
+CONV1_SIZE = 5
+
+# 第二层卷积层的尺寸和深度
+CONV2_DEEP = 16
+CONV2_SIZE = 5
+
+# 第三层卷积层的尺寸和深度
+CONV3_DEEP = 32
+CONV3_SIZE = 5
+
+# 第四层卷积层的尺寸和深度
+CONV4_DEEP = 64
+CONV4_SIZE = 5
+
+# 第五层卷积层的尺寸和深度
+CONV5_DEEP = 128
+CONV5_SIZE = 5
+
+FC1_SIZE = 8192
+FC2_SIZE = 512
+FC3_SIZE = 10
+# 定义前向传播的过程,这里添加了一个新的参数train，用于区分训练过程和测试过程
+# 这个过程将用到dropout方法，dropout可以进一步提升模型可靠性并防止过拟合
+# dropout只在训练时使用
