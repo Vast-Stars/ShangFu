@@ -25,5 +25,5 @@ if __name__ == '__main__':
     #
     #     # Wait for threads to finish.
     #     coord.join(threads)
-
-    train(imgages,labels)
+    images, labels = read_and_decode("test.tf")
+    train(images,labels)

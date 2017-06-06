@@ -8,7 +8,7 @@ import numpy as np
 import Variables
 
 # 定义训练过程
-def train(images, labels,MODEL_SAVE_PATH="/model/model.ckpt",BATCH_SIZE=Variables.BATCH_SIZE,IMAGE_SIZE=Variables.IMAGE_SIZE,NUM_CHANNELS=Variables.NUM_CHANNELS):
+def train(images, labels,MODEL_SAVE_PATH="./model.ckpt",BATCH_SIZE=Variables.BATCH_SIZE,IMAGE_SIZE=Variables.IMAGE_SIZE,NUM_CHANNELS=Variables.NUM_CHANNELS):
     # 定义输出为4维矩阵的placeholder
     BATCH_SIZE=10
     x = tf.placeholder(tf.float32, [
@@ -50,7 +50,8 @@ def train(images, labels,MODEL_SAVE_PATH="/model/model.ckpt",BATCH_SIZE=Variable
         staircase=True)
     #xs, ys = tf.train.shuffle_batch([images, labels],batch_size= BATCH_SIZE, capacity=4000, min_after_dequeue=1000)
     ###DEBUG
-    xs, ys = tf.train.shuffle_batch([images, labels], batch_size=5, capacity=10, min_after_dequeue=5)
+    xs, yss = tf.train.shuffle_batch([images, labels], batch_size=10, capacity=10, min_after_dequeue=5)
+    ys = tf.one_hot(yss, Variables.NUM_CLASSES)
     train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss, global_step=global_step)
     with tf.control_dependencies([train_step, variables_averages_op]):
         train_op = tf.no_op(name='train')
@@ -63,11 +64,14 @@ def train(images, labels,MODEL_SAVE_PATH="/model/model.ckpt",BATCH_SIZE=Variable
         threads = tf.train.start_queue_runners(sess=sess, coord=coord)
         for i in range(Variables.TRAINING_STEPS):
             xs_test,ys_test=sess.run([xs,ys])
-            _, loss_value, step = sess.run([train_op, loss, global_step], feed_dict={x: xs_test, y_: ys_test})
-            saver.save(sess, MODEL_SAVE_PATH)
+            _, loss_value, step = sess.run([train_op, loss, global_step],
+                                           feed_dict={x: xs_test, y_: ys_test}
+                                           )
+
             print(i,loss_value)
             if i % 1000 == 0:
                 print("After %d training step(s), loss on training batch is %g." % (step, loss_value))
+                saver.save(sess, MODEL_SAVE_PATH)
 
         coord.request_stop()
         coord.join(threads)
