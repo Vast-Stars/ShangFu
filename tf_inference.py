@@ -21,7 +21,8 @@ def inference(input_tensor, train, regularizer):
     # 使用全零填充且移动的步长为2.这一层的输入是上一层的输出，也就是124x124x3x8的矩阵。
     # 输出为64x64x3x8的矩阵。
     with tf.name_scope("layer2-pool1"):
-        pool1 = tf.nn.max_pool(relu1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding="SAME")
+        norm1 = tf.nn.lrn(relu1, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75, name='norm1')
+        pool1 = tf.nn.max_pool(relu1, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding="SAME")
 
     # 声明第三层卷积层的变量并实现前向传播过程。这一层的输入为64x64x3x8的矩阵。
     # 输出为64x64x3x16
@@ -38,7 +39,9 @@ def inference(input_tensor, train, regularizer):
     # 实现第四层池化层的前向传播过程。这一层和前一层的结构是一样的。这一层的输入为64x64x3x16的矩阵。
     # 输出为32x32x3x16的矩阵
     with tf.name_scope("layer4-pool2"):
-        pool2 = tf.nn.max_pool(relu2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
+
+        pool2 = tf.nn.max_pool(relu2, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='SAME')
+        norm2 = tf.nn.lrn(pool2, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75, name='norm2')
 
     # 声明第5层卷积层的变量并实现前向传播过程。这一层的输入为32x32x3x16的矩阵。
     # 输出为32x32x3x32
@@ -49,13 +52,14 @@ def inference(input_tensor, train, regularizer):
         conv3_biases = tf.get_variable("bias", [Variables.CONV3_DEEP], initializer=tf.constant_initializer(0.0))
 
         # 使用边长为5，深度为32的过滤器,过滤器步长为1,且使用全零填充
-        conv3 = tf.nn.conv2d(pool2, conv3_weights, strides=[1, 1, 1, 1], padding='SAME')
+        conv3 = tf.nn.conv2d(norm2, conv3_weights, strides=[1, 1, 1, 1], padding='SAME')
         relu3 = tf.nn.relu(tf.nn.bias_add(conv3, conv3_biases))
 
     # 实现第6层池化层的前向传播过程。这一层和前一层的结构是一样的。这一层的输入为32x32x3x32的矩阵。
     # 输出为16x16x3x32的矩阵
     with tf.name_scope("layer6-pool3"):
-        pool3 = tf.nn.max_pool(relu3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
+        pool3 = tf.nn.max_pool(relu3, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='SAME')
+        norm3 = tf.nn.lrn(pool3, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75, name='norm3')
 
     # 声明第7层卷积层的变量并实现前向传播过程。这一层的输入为32x32x3x32的矩阵。
     # 输出为32x32x3x64
@@ -66,13 +70,13 @@ def inference(input_tensor, train, regularizer):
         conv4_biases = tf.get_variable("bias", [Variables.CONV4_DEEP], initializer=tf.constant_initializer(0.0))
 
         # 使用边长为5，深度为64的过滤器,过滤器步长为1,且使用全零填充
-        conv4 = tf.nn.conv2d(pool3, conv4_weights, strides=[1, 1, 1, 1], padding='SAME')
+        conv4 = tf.nn.conv2d(norm3, conv4_weights, strides=[1, 1, 1, 1], padding='SAME')
         relu4 = tf.nn.relu(tf.nn.bias_add(conv4, conv4_biases))
 
     # 实现第8层池化层的前向传播过程。这一层和前一层的结构是一样的。这一层的输入为32x32x3x64的矩阵。
     # 输出为16x16x3x64的矩阵
     with tf.name_scope("layer8-pool4"):
-        pool4 = tf.nn.max_pool(relu3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
+        pool4 = tf.nn.max_pool(relu3, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='SAME')
         # 将第8层池化层的输出转化成第9层全连接层的输入格式。第8层的输出为16×16×3x64的矩阵。
         # 然而全连接层的输入格式为向量。在这里需要将这个16×16×3x32的矩阵拉直成一个向量
         pool_shape = pool4.get_shape().as_list()

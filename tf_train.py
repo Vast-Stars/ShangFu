@@ -76,7 +76,7 @@ def train2(x, y_,
 
     regularizer = tf.contrib.layers.l2_regularizer(Variables.REGULARIZATION_RATE)
     # 直接使用tf.inference.py中的前向传播过程
-    y = tf_inference.inference(x, False, regularizer)
+    y = tf_inference.inference(x, True, regularizer)
     # 将代表训练轮数的变量设为不可训练的参数。
     global_step = tf.Variable(0, trainable=False)
 
@@ -118,7 +118,7 @@ def train2(x, y_,
         #summary_writer = tf.train.SummaryWriter('log', sess.graph)
 
         for i in range(Variables.TRAINING_STEPS):
-            _, loss_value, tem_y= sess.run([train_op, loss,y])
+            _, loss_value, tem_y= sess.run([train_op, loss,y_])
             #summary_writer.add_summary(summary_str, iter)
             #DEBUG用。输出一些训练信息
             print( '%-2s: %-10s,%s' % (i, loss_value,tem_y.cumsum(0)[BATCH_SIZE-1][0]))
