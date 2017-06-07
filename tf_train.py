@@ -2,7 +2,6 @@ import tensorflow as tf
 import tf_inference
 # 定义神经网络相关的参数
 import Variables
-
 # 定义训练过程
 def train(images, labels,MODEL_SAVE_PATH="./SAVE/model.ckpt",BATCH_SIZE=Variables.BATCH_SIZE,IMAGE_SIZE=Variables.IMAGE_SIZE,NUM_CHANNELS=Variables.NUM_CHANNELS):
     # 定义输出为4维矩阵的placeholder
@@ -108,16 +107,23 @@ def train2(x, y_,
         train_op = tf.no_op(name='train')
     # 初始化TensorFlow持久化类。
     saver = tf.train.Saver(tf.trainable_variables())
+
+    ##tf.scalar_summary("cost_function", loss)
+    ##merged_summary_op = tf.merge_all_summaries()
     with tf.Session() as sess:
         print('Session Begin!')
         sess.run(tf.global_variables_initializer())
         coord = tf.train.Coordinator()
         threads = tf.train.start_queue_runners(sess=sess, coord=coord)
+        #summary_writer = tf.train.SummaryWriter('log', sess.graph)
+
         for i in range(Variables.TRAINING_STEPS):
-            _, loss_value, step = sess.run([train_op, loss, global_step],)
-            print(i, loss_value)
-            if i % 1000 == 0:
-                print("After %d training step(s), loss on training batch is %g." % (step, loss_value))
+            _, loss_value, tem_y= sess.run([train_op, loss,y])
+            #summary_writer.add_summary(summary_str, iter)
+            #DEBUG用。输出一些训练信息
+            print( '%-2s: %-10s,%s' % (i, loss_value,tem_y.cumsum(0)[BATCH_SIZE-1][0]))
+            if i % 1000 == 0 and i!=0:
+                print("After %d training step(s), loss on training batch is %g." % (i, loss_value))
                 saver.save(sess, MODEL_SAVE_PATH, write_meta_graph=False)
         coord.request_stop()
         coord.join(threads)

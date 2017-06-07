@@ -1,7 +1,9 @@
 import tensorflow as tf
-def read_and_decode(filename='train2.tfrecords'):
+
+def read_and_decode(filename):
 	#根据文件名生成一个队列
-    filename_queue = tf.train.string_input_producer([filename])
+
+    filename_queue = tf.train.string_input_producer([filename],shuffle=True)
     reader = tf.TFRecordReader()
     _, serialized_example = reader.read(filename_queue)   #返回文件名和文件
     features = tf.parse_single_example(serialized_example,

@@ -29,8 +29,12 @@ if __name__ == '__main__':
     #     coord.join(threads)
     #images, labels = read_and_decode("TRAIN.tf")
     images, labels = read_and_decode("TRAIN.tf")
-    x_int, ys_int = tf.train.shuffle_batch([images, labels], batch_size=Variables.BATCH_SIZE, num_threads=2, capacity=500,
-                                        min_after_dequeue=100)
+    x_int, ys_int = tf.train.shuffle_batch([images, labels],
+                                           batch_size=Variables.BATCH_SIZE,
+                                           num_threads=4,
+                                           capacity=55000,
+                                           min_after_dequeue=50000)
+
     x=tf.to_float(x_int)
     y_ = tf.one_hot(ys_int, Variables.NUM_CLASSES)
     train2(x=x,y_=y_)
