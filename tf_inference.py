@@ -2,7 +2,6 @@
 import tensorflow as tf
 import Variables
 
-
 def inference(input_tensor, drop_out, regularizer =None):
     # 声明第一层卷积层的变量并实现前向传播过程
     # 通过使用不同的命名空间来隔离不同层的变量，这可以让每一层中的变量名只需要考虑在当前层中的作用，而不比担心重命名问题。
@@ -81,6 +80,7 @@ def inference(input_tensor, drop_out, regularizer =None):
         # 然而全连接层的输入格式为向量。在这里需要将这个16×16×3x32的矩阵拉直成一个向量
         pool_shape = pool4.get_shape().as_list()
         nodes = pool_shape[1] * pool_shape[2] * pool_shape[3]  # * pool_shape[4]
+
         reshaped = tf.reshape(pool4, [pool_shape[0], nodes])
 
     # 声明第9层全连接层的变量并实现前向传播过程，这一层的输入是拉直以后的一组向量。
@@ -128,7 +128,7 @@ def inference(input_tensor, drop_out, regularizer =None):
                                       initializer=tf.truncated_normal_initializer(stddev=0.1))
         if regularizer is not None:
             tf.add_to_collection('losses', regularizer(fc4_weights))
-        fc4_biases = tf.get_variable("bias", [Variables.NUM_CHANNELS], initializer=tf.constant_initializer(0.1))
+        fc4_biases = tf.get_variable("bias", [Variables.NUM_CLASSES], initializer=tf.constant_initializer(0.1))
         logit = tf.add(tf.matmul(fc3, fc4_weights), fc4_biases)
 
     return logit

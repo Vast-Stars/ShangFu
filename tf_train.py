@@ -7,7 +7,7 @@ import os
 
 def train(x, y_,
           drop_out=True,
-           MODEL_SAVE_PATH=os.getcwd()+"/SAVE/model.ckpt",
+           MODEL_SAVE_PATH=os.getcwd()+"/SAVE/model2.ckpt",
            BATCH_SIZE=Variables.BATCH_SIZE,
           IMAGE_SIZE=Variables.IMAGE_SIZE,
            NUM_CHANNELS=Variables.NUM_CHANNELS):
@@ -50,8 +50,8 @@ def train(x, y_,
     # 初始化TensorFlow持久化类。
     saver = tf.train.Saver(tf.trainable_variables())
 
-    # tf.scalar_summary("cost_function", loss)
-    # merged_summary_op = tf.merge_all_summaries()
+    tf.summary.scalar('loss', loss)
+    merged = tf.summary.merge_all()
     with tf.Session() as sess:
         print('Session Begin!')
 
@@ -68,11 +68,10 @@ def train(x, y_,
 
             # DEBUG用。输出一些训练信息  第三项是样本混合均匀度，比较理想是在65—75之间
             print( '%-2s: %-10s,%s' % (i, loss_value, tem_y.cumsum(0)[BATCH_SIZE-1][0]))
-            rs = sess.run(merged)
-
             if i % 50== 0:
+                rs = sess.run(merged)
                 writer.add_summary(rs, i)
                 #print("After %d training step(s), loss on training batch is %g." % (i, loss_value))
-                #saver.save(sess, MODEL_SAVE_PATH)
+                saver.save(sess, MODEL_SAVE_PATH)
         coord.request_stop()
         coord.join(threads)

@@ -35,5 +35,6 @@ if __name__ == '__main__':
                                            min_after_dequeue=50000)
 
     x=tf.to_float(x_int)
+
     y_ = tf.one_hot(ys_int, Variables.NUM_CLASSES)
-    train(x=x,y_=y_,drop_out=True)
+    train(x=x,y_=y_)
