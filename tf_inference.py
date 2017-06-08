@@ -3,7 +3,7 @@ import tensorflow as tf
 import Variables
 
 
-def inference(input_tensor, train, regularizer):
+def inference(input_tensor, drop_out, regularizer =None):
     # 声明第一层卷积层的变量并实现前向传播过程
     # 通过使用不同的命名空间来隔离不同层的变量，这可以让每一层中的变量名只需要考虑在当前层中的作用，而不比担心重命名问题。
     # 这里定义的卷积层输入为128x128x3的图片。因为卷积层中使用了全零填充，所以输出为128x128x8的矩阵。
@@ -96,7 +96,8 @@ def inference(input_tensor, train, regularizer):
         fc1_biases = tf.get_variable("bias", [Variables.FC1_SIZE], initializer=tf.constant_initializer(0.1))
 
         fc1 = tf.nn.relu(tf.matmul(reshaped, fc1_weights) + fc1_biases)
-        if train: fc1 = tf.nn.dropout(fc1, 0.5)
+        if drop_out:
+            fc1 = tf.nn.dropout(fc1, 0.5)
 
     with tf.variable_scope('layer10-fc2'):
         fc2_weights = tf.get_variable("weight", [Variables.FC1_SIZE, Variables.FC2_SIZE],
@@ -107,7 +108,8 @@ def inference(input_tensor, train, regularizer):
         fc2_biases = tf.get_variable("bias", [Variables.FC2_SIZE], initializer=tf.constant_initializer(0.1))
 
         fc2 = tf.nn.relu(tf.matmul(fc1, fc2_weights) + fc2_biases)
-        if train: fc2 = tf.nn.dropout(fc2, 0.5)
+        if drop_out:
+            fc2 = tf.nn.dropout(fc2, 0.5)
 
     with tf.variable_scope('layer11-fc3'):
         fc3_weights = tf.get_variable("weight", [Variables.FC2_SIZE, Variables.FC3_SIZE],
@@ -118,7 +120,8 @@ def inference(input_tensor, train, regularizer):
         fc3_biases = tf.get_variable("bias", [Variables.FC3_SIZE], initializer=tf.constant_initializer(0.1))
 
         fc3 = tf.nn.relu(tf.matmul(fc2, fc3_weights) + fc3_biases)
-        if train: fc3 = tf.nn.dropout(fc3, 0.5)
+        if drop_out:
+            fc3 = tf.nn.dropout(fc3, 0.5)
 
     with tf.variable_scope('layer12-fc4'):
         fc4_weights = tf.get_variable("weight", [Variables.FC3_SIZE, Variables.NUM_CHANNELS],

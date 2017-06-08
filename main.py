@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from tf_train import train
-from tf_train import train2
 from read_TFrecord import read_and_decode
 import Variables
 import tensorflow as tf
@@ -37,4 +36,4 @@ if __name__ == '__main__':
 
     x=tf.to_float(x_int)
     y_ = tf.one_hot(ys_int, Variables.NUM_CLASSES)
-    train2(x=x,y_=y_)
+    train(x=x,y_=y_,drop_out=True)
