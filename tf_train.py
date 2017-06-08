@@ -3,7 +3,7 @@ import tf_inference
 # 定义神经网络相关的参数
 import Variables
 # 定义训练过程
-def train(images, labels,MODEL_SAVE_PATH="./SAVE/model.ckpt",BATCH_SIZE=Variables.BATCH_SIZE,IMAGE_SIZE=Variables.IMAGE_SIZE,NUM_CHANNELS=Variables.NUM_CHANNELS):
+def train(images, labels,MODEL_SAVE_PATH="/SAVE/model.ckpt",BATCH_SIZE=Variables.BATCH_SIZE,IMAGE_SIZE=Variables.IMAGE_SIZE,NUM_CHANNELS=Variables.NUM_CHANNELS):
     # 定义输出为4维矩阵的placeholder
     x = tf.placeholder(tf.float32, [
             BATCH_SIZE,
@@ -32,7 +32,7 @@ def train(images, labels,MODEL_SAVE_PATH="./SAVE/model.ckpt",BATCH_SIZE=Variable
     # 来计算交叉熵。当分类问题只有一个正确答案时，可以使用这个函数加速交叉熵的计算。
     # 这个函数的第一个参数是神经网络不包含softmax层的前向传播结果，第二个是训练数据的正确答案。
     # 标准答案是一个长度为2的二位数组。该函数需要提供的是一个正确答案的数字，所以要使用tf.argmax函数来得到正确答案对应的类别编号。
-    cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=y,labels= tf.argmax(y_,dimension= 1))
+    cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=y, labels=tf.argmax(y_, dimension=1))
     # 计算在当前batch中所有样例的交叉熵平均值
     cross_entropy_mean = tf.reduce_mean(cross_entropy)
     loss = cross_entropy_mean + tf.add_n(tf.get_collection('losses'))
@@ -41,8 +41,8 @@ def train(images, labels,MODEL_SAVE_PATH="./SAVE/model.ckpt",BATCH_SIZE=Variable
         global_step,
         50000 / BATCH_SIZE,Variables.LEARNING_RATE_DECAY,
         staircase=True)
-    #xs, ys = tf.train.shuffle_batch([images, labels],batch_size= BATCH_SIZE, capacity=4000, min_after_dequeue=1000)
-    ###DEBUG
+    # xs, ys = tf.train.shuffle_batch([images, labels],batch_size= BATCH_SIZE, capacity=4000, min_after_dequeue=1000)
+    # DEBUG
     xs, ys_int = tf.train.shuffle_batch([images, labels], batch_size=Variables.BATCH_SIZE, num_threads=16,capacity=500, min_after_dequeue=100)
     ys = tf.one_hot(ys_int, Variables.NUM_CLASSES)
     train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss, global_step=global_step)
@@ -61,15 +61,16 @@ def train(images, labels,MODEL_SAVE_PATH="./SAVE/model.ckpt",BATCH_SIZE=Variable
                                            feed_dict={x: xs_test, y_: ys_test}
                                            )
             print(i,loss_value)
-            if i % 1000 == 0:
+            if i % 100 == 0:
                 print("After %d training step(s), loss on training batch is %g." % (step, loss_value))
-                saver.save(sess, MODEL_SAVE_PATH,write_meta_graph=False)
+                # saver.save(sess, MODEL_SAVE_PATH, write_meta_graph=False)
+                saver.save(sess, MODEL_SAVE_PATH)
         coord.request_stop()
         coord.join(threads)
 
 
 def train2(x, y_,
-           MODEL_SAVE_PATH="./SAVE/model.ckpt",
+           MODEL_SAVE_PATH="/SAVE/model.ckpt",
            BATCH_SIZE=Variables.BATCH_SIZE,
           IMAGE_SIZE=Variables.IMAGE_SIZE,
            NUM_CHANNELS=Variables.NUM_CHANNELS):
@@ -98,7 +99,7 @@ def train2(x, y_,
     cross_entropy_mean = tf.reduce_mean(cross_entropy)
     loss = cross_entropy_mean + tf.add_n(tf.get_collection('losses'))
     learning_rate = tf.train.exponential_decay(
-                            learning_rate= Variables.LEARNING_RATE_BASE,
+                            learning_rate=Variables.LEARNING_RATE_BASE,
                             global_step=global_step,
                             decay_steps=60000 / BATCH_SIZE, decay_rate= Variables.LEARNING_RATE_DECAY,
                             staircase=True)
@@ -108,22 +109,23 @@ def train2(x, y_,
     # 初始化TensorFlow持久化类。
     saver = tf.train.Saver(tf.trainable_variables())
 
-    ##tf.scalar_summary("cost_function", loss)
-    ##merged_summary_op = tf.merge_all_summaries()
+    # tf.scalar_summary("cost_function", loss)
+    # merged_summary_op = tf.merge_all_summaries()
     with tf.Session() as sess:
         print('Session Begin!')
         sess.run(tf.global_variables_initializer())
         coord = tf.train.Coordinator()
         threads = tf.train.start_queue_runners(sess=sess, coord=coord)
-        #summary_writer = tf.train.SummaryWriter('log', sess.graph)
+        # summary_writer = tf.train.SummaryWriter('log', sess.graph)
 
         for i in range(Variables.TRAINING_STEPS):
-            _, loss_value, tem_y= sess.run([train_op, loss,y_])
-            #summary_writer.add_summary(summary_str, iter)
-            #DEBUG用。输出一些训练信息
-            print( '%-2s: %-10s,%s' % (i, loss_value,tem_y.cumsum(0)[BATCH_SIZE-1][0]))
-            if i % 1000 == 0 and i!=0:
+            _, loss_value, tem_y= sess.run([train_op, loss, y_])
+            # summary_writer.add_summary(summary_str, iter)
+            # DEBUG用。输出一些训练信息
+            print( '%-2s: %-10s,%s' % (i, loss_value, tem_y.cumsum(0)[BATCH_SIZE-1][0]))
+            if i % 100 == 0 and i != 0:
                 print("After %d training step(s), loss on training batch is %g." % (i, loss_value))
-                saver.save(sess, MODEL_SAVE_PATH, write_meta_graph=False)
+                # saver.save(sess, MODEL_SAVE_PATH, write_meta_graph=False)
+                saver.save(sess, MODEL_SAVE_PATH)
         coord.request_stop()
         coord.join(threads)
