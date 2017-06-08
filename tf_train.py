@@ -15,7 +15,7 @@ def train(images, labels,MODEL_SAVE_PATH="./SAVE/model.ckpt",BATCH_SIZE=Variable
 
     regularizer = tf.contrib.layers.l2_regularizer(Variables.REGULARIZATION_RATE)
     # 直接使用tf.inference.py中的前向传播过程
-    y = tf_inference.inference(x, False, regularizer)
+    y = tf_inference.inference(x, True, regularizer)
     # 将代表训练轮数的变量设为不可训练的参数。
     global_step = tf.Variable(0, trainable=False)
 

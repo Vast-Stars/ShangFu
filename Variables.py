@@ -46,7 +46,7 @@ CONV4_SIZE = 5
 CONV5_DEEP = 128
 CONV5_SIZE = 5
 
-FC1_SIZE = 8192
+FC1_SIZE = 1024
 FC2_SIZE = 512
 FC3_SIZE = 10
 # 定义前向传播的过程,这里添加了一个新的参数train，用于区分训练过程和测试过程
